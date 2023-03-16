@@ -62,8 +62,10 @@ class PathPlanner(object):
             f, node = heapq.heappop(pq) # Extract priority node
             if not node.closed: # Verifies if node was already closed
                 node.closed = True
+
                 if node == goal_node: # If node was excracted of heap and is the goal node, return
                     return self.construct_path(goal_node), goal_node.f
+                
                 i_node, j_node = node.get_position() # Get position of priority node
                 for successor_position in self.node_grid.get_successors(i_node, j_node): # For all positions of successor of priority node
                     successor = self.node_grid.get_node(successor_position[0], successor_position[1]) # Get successor node
