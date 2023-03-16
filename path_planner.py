@@ -107,7 +107,7 @@ class PathPlanner(object):
                 for successor_position in self.node_grid.get_successors(i_node, j_node): # For all positions of successor of priority node
                     successor = self.node_grid.get_node(successor_position[0], successor_position[1]) # Get successor node
                     # Verifies if the cost of getting to the node is greater than the update.
-                    # Working with graphs and not trees, avoid cycles
+                    # Working with graphs and not trees, avoid cycles.
                     if successor.g > node.g + self.cost_map.get_edge_cost((i_node, j_node), successor_position):
                         successor.parent = node
                         successor.g = node.g + self.cost_map.get_edge_cost((i_node, j_node), successor_position)
@@ -153,7 +153,7 @@ class PathPlanner(object):
                 for successor_position in self.node_grid.get_successors(i_node, j_node): # For all positions of successor of priority node
                     successor = self.node_grid.get_node(successor_position[0], successor_position[1]) # Get successor node
                     # Verifies if the cost of getting to the node is greater than the update.
-                    # Working with graphs and not trees, avoid cycles
+                    # Working with graphs and not trees, avoid cycles.
                     if successor.f > node.g + self.cost_map.get_edge_cost((i_node, j_node), successor_position) + successor.distance_to(goal_position[0], goal_position[1]):
                         successor.g = node.g + self.cost_map.get_edge_cost((i_node, j_node), successor_position)
                         successor.f = successor.g + successor.distance_to(goal_position[0], goal_position[1])

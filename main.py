@@ -17,9 +17,9 @@ num_iterations = 1
 # num_iterations = 100  # Monte Carlo
 
 # Plot options
-save_fig = True  # if the figure will be used to the hard disk
+save_fig = False  # if the figure will be used to the hard disk
 show_fig = True  # if the figure will be shown in the screen
-fig_format = 'png'
+fig_format = 'eps'
 # Recommended figure formats: .eps for Latex/Linux, .svg for MS Office, and .png for easy visualization in Windows.
 # The quality of .eps and .svg is far superior since these are vector graphics formats.
 

@@ -1,0 +1,230 @@
+\documentclass[brazil, 12pt]{article}
+
+\usepackage[portuguese]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[dvips]{graphicx}
+\usepackage{caption}
+\usepackage{indentfirst}
+\usepackage{subcaption}
+\usepackage[scale=0.8]{geometry} % Reduce document margins
+\usepackage{minted}    
+\usepackage{fancyvrb,newverbs,xcolor}
+\usepackage{titlesec}
+\usepackage{multirow}
+\titleformat*{\section}{\normalsize\bfseries}
+\titleformat*{\subsection}{\normalsize\bfseries}
+% \usepackage{hyperref}
+
+\begin{document}
+
+%-----------------------------------------------------------------------------------------------
+%       CABEÇALHO
+%-----------------------------------------------------------------------------------------------
+\begin{center}
+\textbf{Instituto Tecnológico de Aeronáutica - ITA} \\
+\textbf{Inteligência Artificial para Robótica Móvel - CT213} \\
+\textbf{Aluno}: Tafnes Silva Barbosa     % ESCREVA SEU NOME AQUI
+\end{center}
+
+\begin{center}
+\textbf{Relatório do Laboratório 2 - Busca Informada}
+\end{center}
+%-----------------------------------------------------------------------------------------------
+\vspace*{0.5cm}
+
+%-----------------------------------------------------------------------------------------------
+%       RELATÓRIO
+%-----------------------------------------------------------------------------------------------
+\section{Breve Explicação em Alto Nível da Implementação}
+Neste laboratório, foram implementados 3 algoritmos de planejamento de caminho: Dijkstra, \textit{Greedy Search} e A$^{\star}$.
+\subsection{Algoritmo Dijkstra}
+%% Sugestão: cerca de meia página.
+O Dijkstra encontra o caminho ótimo, mas é muito lento por verificar mais nós. Sua implementação foi feita tomando como base o pseudocódigo dos \textit{slides} da aula. O algoritmo segue os seguintes passos:
+\begin{enumerate}
+	\item Reseta o \textit{grid} e recebe o nó objetivo através do método \texttt{get\_node(i, j)};
+	\item Cria a fila de prioridades, recebe o nó inicial, seta o custo deste nó para 0 (\texttt{node.f = 0}) e o coloca na fila de prioridades \textcolor{blue!70}{(Usa-se o \texttt{node.f}, pois este algoritmo não usa heurística, logo f=g)};
+	\item Enquanto a fila de prioridades não está vazia:
+	\begin{enumerate}
+		\item Extrai o nó de maior prioridade da fila;
+		\item Se o nó não está fechado: \textcolor{blue!70}{(faz-se isso para evitar voltar a um nó da fila que já foi retirado, dado que a estrutura em python não atualiza um valor dentro da fila de prioridades)}
+		\begin{enumerate}
+			\item Fecha o nó retirado da fila;
+			\item Se o nó é o nó objetivo, retorna o caminho até ele (através do método \texttt{construct\_ path(goal\_node)}) e o custo para chegar ao nó objetivo; \textcolor{blue!70}{(Como o nó foi retirado da fila, seu custo é o menor possível para este algoritmo)}
+			\item Para cada sucessor do nó retirado da fila, caso o custo do sucessor seja maior que o custo do nó retirado mais o custo de chegar a esse nó (através do método \texttt{get\_edge\_cost((i, j), successor\_position}), atualiza seu custo, atualiza seu pai e coloca o sucessor na fila de prioridades.
+		\end{enumerate}
+	\end{enumerate}
+\end{enumerate}
+
+\subsection{Algoritmo \emph{Greedy Search}}
+%% Sugestão: cerca de meia página.
+O \textit{Greddy Search} pode encontrar um caminho subótimo, mas é muito mais rápido. Sua implementação foi feita tomando como base o pseudocódigo dos \textit{slides} da aula. O algoritmo segue os seguintes passos:
+\begin{enumerate}
+	\item Reseta o \textit{grid} e recebe o nó objetivo através do método \texttt{get\_node(i, j)};
+	\item Cria a fila de prioridades, recebe o nó inicial, seta o custo ótimo deste nó até o objetivo igual à distância euclidiana entre estes nós (\texttt{node.f = initial\_node.distance \_to(goal\_position)}), seta o custo para chegar a este nó para 0 (\texttt{node.g = 0}) e o coloca na fila de prioridades \textcolor{blue!70}{(Usa-se o \texttt{node.f} igual à heurística, pois este algoritmo usa somente a heurística, logo f=h; contabiliza-se o \texttt{node.g} para evitar de voltar a um nó que já teve custo menor definido, dado que trabalha-se com grafos e não árvores)};
+	\item Enquanto a fila de prioridades não está vazia:
+	\begin{enumerate}
+		\item Extrai o nó de maior prioridade da fila;
+		\item Se o nó não está fechado: \textcolor{blue!70}{(faz-se isso para evitar voltar a um nó da fila que já foi retirado, dado que a estrutura em python não atualiza um valor dentro da fila de prioridades)}
+		\begin{enumerate}
+			\item Fecha o nó retirado da fila;
+			\item Para cada sucessor do nó retirado da fila, caso o custo para chegar até o sucessor (\texttt{successor.g}) seja maior que o valor de atualização: \textcolor{blue!70}{(faz-se isso para evitar voltar a um nó que já teve custo \texttt{g} menor definido, dado que não se trabalha com árvores e sim com grafos)}
+			\begin{enumerate}
+				\item Atualiza seu pai e atualiza o custo para chegar até o nó sucessor (\texttt{node.g});
+				\item Se ele é o nó objetivo, retorna o caminho do nó inicial até o objetivo e o custo para chegar até este sucessor (\texttt{successor.g});
+				\item Atualiza o custo \texttt{successor.f} deste sucessor para o valor da heurística utilizada (distância euclidiana entre este nó sucessor e o nó objetivo, \textcolor{blue!70}{dado que este algoritmo só utiliza a heurística});
+				\item Insere o sucessor na fila de prioridades.
+			\end{enumerate}
+		\end{enumerate}
+	\end{enumerate}
+\end{enumerate}
+
+\subsection{Algoritmo A$^{\star}$}
+%% Sugestão: cerca de meia página.
+O A$^{\star}$ encontra o caminho ótimo em um grafo dado que a heurística utilizada (distância euclidiana) é consistente, ou seja, respeita a ``desigualdade triangular''. Ele é mais rápido que o Dijkstra e mais lento que o \textit{Greedy Search}. Sua implementação foi feita tomando como base o pseudocódigo dos \textit{slides} da aula. O algoritmo segue os seguintes passos:
+\begin{enumerate}
+	\item Reseta o \textit{grid} e recebe o nó objetivo através do método \texttt{get\_node(i, j)};
+	\item Cria a fila de prioridades, recebe o nó inicial, seta o custo para chegar a este nó para 0 (\texttt{node.g = 0}), seta o custo (\texttt{node.f}) deste nó para a distância euclidiana entre este nó e o nó objetivo e o coloca na fila de prioridades \textcolor{blue!70}{(Este algoritmo usa tanto a eurística como o custo de chegar ao respectivo nó, $\mathtt{f}=\mathtt{h}+\mathtt{g}$)};
+	\item Enquanto a fila de prioridades não está vazia:
+	\begin{enumerate}
+		\item Extrai o nó de maior prioridade da fila;
+		\item Se o nó não está fechado: \textcolor{blue!70}{(faz-se isso para evitar voltar a um nó da fila que já foi retirado, dado que a estrutura em python não atualiza um valor dentro da fila de prioridades)}
+		\begin{enumerate}
+			\item Fecha o nó retirado da fila;
+			\item Se o nó é o nó objetivo, retorna o caminho até ele (através do método \texttt{construct\_ path(goal\_node)}) e o custo para chegar ao nó objetivo (\texttt{node.g}); \textcolor{blue!70}{(Como o nó foi retirado da fila, seu custo é o menor possível para este algoritmo)}
+			\item Para cada sucessor do nó retirado da fila, caso o custo do sucessor (\texttt{successor.f}) seja maior que o custo de chegar ao nó retirado (\texttt{node.g}) mais o custo de chegar a esse nó (através do método \texttt{get\_edge\_cost((i, j), successor\_position}) mais a heurística para chegar ao objetivo a partir do sucessor: atualiza o custo para chegar a ele (\texttt{successor.g}), atualiza seu custo (\texttt{successor.f}), atualiza seu pai e coloca o sucessor na fila de prioridades.
+		\end{enumerate}
+	\end{enumerate}
+\end{enumerate}
+
+
+\section{Figuras Comprovando Funcionamento do Código}
+Nesta seção são mostradas figuras comprovando o funcionamento do código implementado. Em cada algoritmo há 3 figuras mostrando o funcionamento para mais de um par (início, objetivo).
+\subsection{Algoritmo Dijkstra}
+%% Basta colocar as figuras
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.7\textwidth]{dijkstra_0} % caminho até a figura "teste.png"
+	\caption{Primeiro caminho com Dijkstra, gerado com \textit{seed}=15.} % legenda da figura
+	\label{fig:dijkstra_0}  % label da figura. ex: \label{fig:test}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.7\textwidth]{dijkstra_4} % caminho até a figura "teste.png"
+	\caption{Quinto caminho com Dijkstra, gerado com \textit{seed}=15.} % legenda da figura
+	\label{fig:dijkstra_4}  % label da figura. ex: \label{fig:test}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.7\textwidth]{dijkstra_9} % caminho até a figura "teste.png"
+	\caption{Décimo caminho com Dijkstra, gerado com \textit{seed}=15.} % legenda da figura
+	\label{fig:dijkstra_9}  % label da figura. ex: \label{fig:test}
+\end{figure}
+
+\subsection{Algoritmo \emph{Greedy Search}}
+%% Basta colocar as figuras
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.7\textwidth]{greedy_0} % caminho até a figura "teste.png"
+	\caption{Primeiro caminho com \textit{Greedy Search}, gerado com \textit{seed}=15.} % legenda da figura
+	\label{fig:greedy_0}  % label da figura. ex: \label{fig:test}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.7\textwidth]{greedy_4} % caminho até a figura "teste.png"
+	\caption{Quinto caminho com \textit{Greedy Search}, gerado com \textit{seed}=15.} % legenda da figura
+	\label{fig:greedy_4}  % label da figura. ex: \label{fig:test}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.7\textwidth]{greedy_9} % caminho até a figura "teste.png"
+	\caption{Décimo caminho com \textit{Greedy Search}, gerado com \textit{seed}=15.} % legenda da figura
+	\label{fig:greedy_9}  % label da figura. ex: \label{fig:test}
+\end{figure}
+
+\subsection{Algoritmo A$^{\star}$}
+%% Basta colocar as figuras
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.7\textwidth]{a_star_0} % caminho até a figura "teste.png"
+	\caption{Primeiro caminho com A$^{\star}$, gerado com \textit{seed}=15.} % legenda da figura
+	\label{fig:a_star_0}  % label da figura. ex: \label{fig:test}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.7\textwidth]{a_star_4} % caminho até a figura "teste.png"
+	\caption{Quinto caminho com A$^{\star}$, gerado com \textit{seed}=15.} % legenda da figura
+	\label{fig:a_star_4}  % label da figura. ex: \label{fig:test}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.7\textwidth]{a_star_9} % caminho até a figura "teste.png"
+	\caption{Décimo caminho com A$^{\star}$, gerado com \textit{seed}=15.} % legenda da figura
+	\label{fig:a_star_9}  % label da figura. ex: \label{fig:test}
+\end{figure}
+
+
+\section{Comparação entre os Algoritmos}
+%% Basta preencher a tabela
+
+A Tabela~\ref{tab:comp} mostra a comparação do tempo computacional, em segundos, e do custo do caminho entre os algoritmos usando um Monte Carlo com 100 iterações.
+
+\begin{table}[H]
+\centering
+\caption{Tabela de comparação entre os algoritmos de planejamento de caminho.}
+\label{tab:comp}
+\begin{tabular}{|l|ll|ll|}
+\hline
+\multicolumn{1}{|c|}{\multirow{2}{*}{\textbf{Algoritmo}}} & \multicolumn{2}{c|}{\textbf{Tempo computacional (s)}}                             & \multicolumn{2}{c|}{\textbf{Custo do caminho}}                                    \\ \cline{2-5} 
+\multicolumn{1}{|c|}{}                                    & \multicolumn{1}{c|}{\textbf{Média}} & \multicolumn{1}{c|}{\textbf{Desvio padrão}} & \multicolumn{1}{c|}{\textbf{Média}} & \multicolumn{1}{c|}{\textbf{Desvio padrão}} \\ \hline
+
+Dijkstra                & \multicolumn{1}{l|}{0.1428}      & 0.0807   & \multicolumn{1}{l|}{79.8292}      & 38.5710   \\ \hline
+\textit{Greedy Search}  & \multicolumn{1}{l|}{0.0063}      & 0.0064   & \multicolumn{1}{l|}{103.1175}      & 58.7940   \\ \hline
+A$^{\star}$             & \multicolumn{1}{l|}{0.0372}      & 0.0337   & \multicolumn{1}{l|}{79.8292}      & 38.5710   \\ \hline
+\end{tabular}
+\end{table}
+
+\end{document}
+
+
+%-----------------------------------------------------------------------------------------------
+%       SUGESTÃO PARA ADICIONAR A FIGURA
+%-----------------------------------------------------------------------------------------------
+%
+% \begin{figure}[H]
+% \centering
+% \includegraphics[width=0.7\textwidth]{teste.png} % caminho até a figura "teste.png"
+% \caption{escreva aqui a legenda da figura} % legenda da figura
+% \label{<label da figura>}  % label da figura. ex: \label{fig:test}
+% \end{figure}  
+
+
+%-----------------------------------------------------------------------------------------------
+%       REFERENCIAR FIGURA NO TEXTO
+%-----------------------------------------------------------------------------------------------
+% \ref{<label da figura>}       
+%
+% Por ex: na Figura \ref{fig:test}, observa-se que...
+
+
+%-----------------------------------------------------------------------------------------------
+%       COPIAR LINHAS DE CÓDIGO EM TEXTO
+%-----------------------------------------------------------------------------------------------
+%
+% \begin{minted}{python}
+%     def print_hello_world():
+%         '''
+%         This function prints "Hello World!"
+%         '''
+%         print("Hello World!")
+        
+%     print_hello_world()
+% \end{minted}
+%
+%-----------------------------------------------------------------------------------------------
